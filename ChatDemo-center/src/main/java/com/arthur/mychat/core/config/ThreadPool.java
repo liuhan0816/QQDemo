@@ -52,4 +52,9 @@ public class ThreadPool {
     public void execute(Runnable runnable){
         threadPool.execute(runnable);
     }
+
+
+    public void shutdown(){
+        threadPool.shutdown();
+    }
 }

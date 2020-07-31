@@ -1,6 +1,7 @@
 package com.arthur.mychat.model.ext;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,10 +16,12 @@ public class User {
 
     //用户名称
     @Getter
+    @Setter
     private String name;
 
     //用户密码
     @Getter
+    @Setter
     private String password;
 
     //用户连接
@@ -26,6 +29,8 @@ public class User {
     public Socket socket;
 
     //此人所有消息
+    @Getter
+    @Setter
     private ArrayList<String> userinforlist = new ArrayList<String>();
 
     public User(Socket socket,String name,String password){

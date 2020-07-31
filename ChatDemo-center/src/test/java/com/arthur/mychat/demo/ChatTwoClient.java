@@ -1,5 +1,7 @@
 package com.arthur.mychat.demo;
 
+import com.arthur.mychat.util.Constants;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,7 +49,7 @@ public class ChatTwoClient extends JFrame implements ActionListener {
         String line="连接"+br.readLine()+"成功";
         while(line!=null&&!line.endsWith("bye"))
         {
-            text_re.append(line+"\r\n");
+            text_re.append(line + Constants.LINE_BREAK);
             line=br.readLine();
         }//读取对方发送的内容并显示，直到内容为为空或对方下线
         br.close();

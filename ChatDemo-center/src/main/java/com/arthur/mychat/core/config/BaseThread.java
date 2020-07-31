@@ -24,7 +24,7 @@ public class BaseThread {
      * @author: liuhan
      * @date: 2020/1/9 11:00
      */
-    public void termination(){
+    private void termination(){
         this.status = Constants.THREAD_FLAG_END;
     }
 

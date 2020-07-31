@@ -1,7 +1,8 @@
 package com.arthur.mychat.core.swing;
 
-import com.arthur.mychat.core.chat.MultiServer;
+import com.arthur.mychat.core.chat.tcp.multi.MultiServer;
 import com.arthur.mychat.core.config.ThreadPool;
+import com.arthur.mychat.core.interfaces.CallBack;
 import com.arthur.mychat.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +13,8 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -21,27 +22,29 @@ import java.time.format.DateTimeFormatter;
  * @author liuhan
  * @date 2019/12/30 16:51
  */
-public class ChatServerGui extends JFrame implements ActionListener {
-    private static final Logger logger = LoggerFactory.getLogger(ChatServerGui.class);
+public class ServerGui extends JFrame implements ActionListener , CallBack {
+    private static final Logger logger = LoggerFactory.getLogger(ServerGui.class);
 
     private MultiServer s;
     private ThreadPool threadPool;
 
     private DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+    //GUI组件
     private JTextArea area;
-    private JToggleButton buttons[];
+    private JScrollPane scroll;
+    private JToggleButton[] buttons;
+    private String[] btnName;
 
-    private ChatServerGui(){
+    private ServerGui(){
     }
-    public ChatServerGui(ThreadPool threadPool)throws IOException{
-        super("Java QQ 服务端:"+ InetAddress.getLocalHost().getHostAddress());
+    public ServerGui(ThreadPool threadPool){
         this.threadPool = threadPool;
         initServer();
     }
 
     public void initServer()  {
         if(s == null){
-            s = new MultiServer(Constants.CHAT_PORT,threadPool);
+            s = new MultiServer(threadPool,this);
         }
     }
     /**
@@ -52,7 +55,13 @@ public class ChatServerGui extends JFrame implements ActionListener {
      * @date: 2019/12/30 16:18
      */
     public void drawSwing(){
-
+        String title = "Java QQ 服务端:";
+        try{
+            title += InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        this.setTitle(title);
         this.setSize(1024, 800);                       // 设置窗口大小
         this.setLocationRelativeTo(null);             // 把窗口位置设置到屏幕中心
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // 当点击窗口的关闭按钮时退出程序（没有这一句，程序不会退出）
@@ -63,7 +72,7 @@ public class ChatServerGui extends JFrame implements ActionListener {
         tabbedPane.setFont(font1);
 
         // 创建第 1 个选项卡（选项卡只包含 标题）
-        tabbedPane.addTab("系统服务", new ImageIcon("/images/face.jpg"), createGridBagPanel("TAB 01"));
+        tabbedPane.addTab("系统服务", new ImageIcon("/images/interfaces.jpg"), createGridBagPanel("TAB 01"));
 
         // 添加选项卡选中状态改变的监听器
         tabbedPane.addChangeListener(new ChangeListener() {
@@ -95,9 +104,12 @@ public class ChatServerGui extends JFrame implements ActionListener {
         Component box2 =Box.createGlue();
         box2.setVisible(true);
 
-        buttons=new JToggleButton[2];
-        buttons[0]=new JToggleButton("启动Java QQ服务");
-        buttons[1]=new JToggleButton("终止Java QQ服务");
+        buttons = new JToggleButton[2];
+        btnName = new String[2];
+        btnName[0] = "启动Java QQ服务";
+        btnName[1] = "终止Java QQ服务";
+        buttons[0]=new JToggleButton(btnName[0]);
+        buttons[1]=new JToggleButton(btnName[1]);
         buttons[0].setPreferredSize(new Dimension(200,50));
         buttons[0].setFont(font1);
 
@@ -112,6 +124,11 @@ public class ChatServerGui extends JFrame implements ActionListener {
 
         area = new JTextArea(20,40);
         area.setFont(font2);
+        JScrollPane scroll = new JScrollPane(area);
+        scroll.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setVerticalScrollBarPolicy(
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         //按钮事件
         buttons[0].addActionListener(this);
@@ -178,7 +195,7 @@ public class ChatServerGui extends JFrame implements ActionListener {
         c.weightx=1;
         c.weighty=1;
         c.insets=new Insets(10, 10, 10, 10);
-        gridBag.addLayoutComponent(area, c);
+        gridBag.addLayoutComponent(scroll, c);
 
 
         JPanel panel = new JPanel(gridBag);
@@ -188,46 +205,51 @@ public class ChatServerGui extends JFrame implements ActionListener {
         panel.add(buttons[1]);
         panel.add(box2);
         panel.add(textField);
-        panel.add(area);
+        panel.add(scroll);
         panel.setFont(font1);
         return panel;
     }
 
-
-    public static void main(String[] args) {
-        ThreadPool threadPool = new ThreadPool();
-
-        ChatServerGui serverGui= null;
-        try {
-            serverGui = new ChatServerGui(threadPool);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        serverGui.drawSwing();
-    }
-
+    /**
+     * 按钮事件实现
+     * @param e
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().equals("启动Java QQ服务"))
-        {
+        if(e.getActionCommand().equals(btnName[0])){
             //启动聊天服务器
             initServer();
             threadPool.execute(s);
             buttons[0].setSelected(true);
             buttons[1].setSelected(false);
-            area.append(df.format(LocalDateTime.now())+"-"+"启动聊天服务器\r\n");
-        }else if(e.getActionCommand().equals("终止Java QQ服务")){
+            area.append(df.format(LocalDateTime.now())+"-"+"启动聊天服务器" + Constants.LINE_BREAK);
+        }else if(e.getActionCommand().equals(btnName[1])){
             if(s!=null){
                 s.close();
+                logger.info("关闭GUI");
                 s=null;
             }else{
-                logger.info("请勿重复关闭");
+                area.append("请勿重复关闭");
             }
             //终止聊天服务器
 //                threadPool.clearAll();
             buttons[0].setSelected(false);
             buttons[1].setSelected(true);
-            area.append(df.format(LocalDateTime.now())+"-"+"终止聊天服务器\r\n");
+            area.append(df.format(LocalDateTime.now())+"-"+"终止聊天服务器" + Constants.LINE_BREAK);
         }
+    }
+
+    public static void main(String[] args) {
+        //服务端线程池
+        ThreadPool threadPool = new ThreadPool();
+
+        ServerGui serverGui= null;
+        serverGui = new ServerGui(threadPool);
+        serverGui.drawSwing();
+    }
+
+    @Override
+    public void receive(String msg) {
+        area.append(msg + Constants.LINE_BREAK);
     }
 }
