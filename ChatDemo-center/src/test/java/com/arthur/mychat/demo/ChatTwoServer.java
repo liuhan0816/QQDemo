@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
+ * 双人聊天-服务端
  * @ClassName ChatTwoServer
  * @Author liuhan
  * @Date 2020/4/28 16:44

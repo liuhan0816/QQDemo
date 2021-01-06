@@ -1,6 +1,6 @@
 package com.arthur.mychat.core.chat.tcp.multi;
 
-import com.arthur.mychat.core.swing.ClientGui;
+import com.arthur.mychat.core.gui.ClientGui;
 
 /**
  * @ClassName MultiClientThread

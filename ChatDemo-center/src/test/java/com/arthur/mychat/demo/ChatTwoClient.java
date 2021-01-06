@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 /**
+ * 双人聊天-客户端
  * @ClassName ChatTwoClient
  * @Author liuhan
  * @Date 2020/4/28 16:45

@@ -1,4 +1,4 @@
-package com.arthur.mychat.core.swing;
+package com.arthur.mychat.core.gui;
 
 import com.arthur.mychat.core.chat.tcp.multi.MultiServer;
 import com.arthur.mychat.core.config.ThreadPool;

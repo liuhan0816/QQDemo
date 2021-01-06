@@ -1,4 +1,4 @@
-package com.arthur.mychat.core.swing;
+package com.arthur.mychat.core.gui;
 
 import com.arthur.mychat.core.interfaces.CallBack;
 import com.arthur.mychat.util.Constants;
@@ -24,7 +24,7 @@ import java.net.Socket;
  */
 public class ClientGui extends JFrame implements ActionListener, WindowListener, CallBack {
     private static final Logger logger = LoggerFactory.getLogger(ClientGui.class);
-    //swing
+    //gui
     private JTextArea[] textAreas;
     private JButton[] buttons;
     private String[] btnName;
